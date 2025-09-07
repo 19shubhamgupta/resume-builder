@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { useStoreAuth } from "../store/useAuthStore";
-import { LogOut, MessageSquare, Settings, User } from "lucide-react";
+import { LogOut, MessageSquare, Settings, User, Menu } from "lucide-react";
 
-const NavBar = () => {
+const NavBar = ({ toggleSidebar }) => {
   const { logout, authUser, showNavBar } = useStoreAuth();
 
   return showNavBar ? (
@@ -14,6 +14,15 @@ const NavBar = () => {
       <div className="container mx-auto px-4 h-16">
         <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-8">
+            {authUser && (
+              <button
+                onClick={toggleSidebar}
+                className="md:hidden p-2 rounded-md hover:bg-gray-200"
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
             <Link
               to="/"
               className="flex items-center gap-2.5 hover:opacity-80 transition-all"
@@ -25,9 +34,26 @@ const NavBar = () => {
                 <MessageSquare className="w-5 h-5 text-white" />
               </div>
               <h1 className="text-lg font-bold" style={{ color: "#333333" }}>
-                Chit Chat
+                Resume Builder
               </h1>
             </Link>
+
+            <div className="hidden md:flex items-center space-x-4">
+              <Link
+                to="/roadmap"
+                className="text-gray-700 hover:text-blue-600"
+                style={{ color: "#333333" }}
+              >
+                Roadmaps
+              </Link>
+              <Link
+                to="/course-generator"
+                className="text-gray-700 hover:text-blue-600"
+                style={{ color: "#333333" }}
+              >
+                Course Generator
+              </Link>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

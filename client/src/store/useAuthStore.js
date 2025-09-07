@@ -24,13 +24,13 @@ export const useStoreAuth = create((set, get) => ({
       toast.error("Failed to initiate Google login");
     }
   },
+  
   checkAuth: async () => {
     set({ isCheckingAuth: true });
     try {
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });
       toast.success("Authentication successful!");
-      get().connectSocket();
     } catch (err) {
       set({ authUser: null });
       if (err.response) {

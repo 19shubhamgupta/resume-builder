@@ -8,6 +8,7 @@ const HomePage = () => {
   if (!authUser) {
     navigate("/login");
   }
+  console.log("authuser" , authUser)
   return (
     authUser && (
       <div className="min-h-screen" style={{ backgroundColor: "#E9F1FA" }}>

@@ -6,8 +6,7 @@ const ConnectDB = require("./lib/db");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 
@@ -39,4 +38,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}/api/`);
   ConnectDB();
 });
-

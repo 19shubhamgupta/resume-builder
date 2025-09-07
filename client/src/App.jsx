@@ -2,12 +2,14 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import { Toaster } from "react-hot-toast";
 import NavBar from "./Components/NavBar";
+import Sidebar from "./Components/Sidebar";
 import { useStoreAuth } from "./store/useAuthStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader } from "lucide-react";
 import toast from "react-hot-toast";
 
 function App() {
+  const [showSidebar, setShowSidebar] = useState(false);
   const { authUser, checkAuth, isCheckingAuth } = useStoreAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -60,11 +62,24 @@ function App() {
       </div>
     );
 
+
+  // Toggle sidebar visibility
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar);
+  };
+
   return (
     <>
       <Toaster position="top-center" />
-      <NavBar />
-      <Outlet />
+      <NavBar toggleSidebar={toggleSidebar} />
+      {authUser && <Sidebar />}
+      <div
+        className={`${
+          authUser ? "ml-16 md:ml-72" : ""
+        } transition-all duration-500`}
+      >
+        <Outlet />
+      </div>
     </>
   );
 }
