@@ -1,10 +1,9 @@
 cloudinary = require("../lib/cloudinary");
-const {
-  generateState,
-  generateCodeVerifier,
-  Google,
-  decodeIdToken,
-} = require("arctic");
+// Import arctic as ESM module
+let arctic;
+(async () => {
+  arctic = await import("arctic");
+})();
 const { generateToken } = require("../lib/generateToken");
 const user = require("../models/user");
 const bcrypt = require("bcryptjs");
@@ -130,10 +129,11 @@ exports.checkAuth = (req, res) => {
   }
 };
 
-exports.getGoogle = (req, res) => {
+exports.getGoogle = async (req, res) => {
   try {
-    const state = generateState();
-    const codeVerifier = generateCodeVerifier();
+    // Using the imported arctic module functions
+    const state = arctic.generateState();
+    const codeVerifier = arctic.generateCodeVerifier();
     const url = google.createAuthorizationURL(state, codeVerifier, [
       "openid",
       "profile",
@@ -218,7 +218,7 @@ exports.getGoogleCallback = async (req, res) => {
       );
     }
 
-    const claims = decodeIdToken(tokens.idToken());
+    const claims = arctic.decodeIdToken(tokens.idToken());
     const { sub: googleUserId, email, name } = claims;
 
     // Check if user already exists with Google ID

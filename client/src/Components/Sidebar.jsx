@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { RiFileUserLine } from "react-icons/ri";
 import { BsBarChartFill } from "react-icons/bs";
@@ -8,10 +8,17 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { AiOutlineBook } from "react-icons/ai";
 import { FaRobot } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useCourseStore } from "../store/useCourseStore";
 
 const Sidebar = () => {
   const [open, setOpen] = useState(true);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
+  const [activeNestedSubmenu, setActiveNestedSubmenu] = useState(null);
+  const { userRoadmaps , getUserRoadmaps} = useCourseStore();
+
+  useEffect(()=>{
+     getUserRoadmaps();
+  } , [])
 
   const menus = [
     {
@@ -30,15 +37,20 @@ const Sidebar = () => {
           icon: MdMenuBook,
         },
         {
-          name: "Course Generator",
-          link: "/course-generator",
+          name: "AI Generated Roadmaps",
           icon: AiOutlineBook,
+          id: "ai-roadmaps",
+          children: userRoadmaps.map((roadmap) => ({
+            name: roadmap.title,
+            link: `/roadmap/customize-roadmap/course/${roadmap.id}`,
+            icon: AiOutlineBook,
+          })),
         },
       ],
     },
     {
-      name: "AI Assistant",
-      link: "/ai-assistant",
+      name: "Generate",
+      link: "/course-generator",
       icon: FaRobot,
     },
     {
@@ -58,6 +70,16 @@ const Sidebar = () => {
       setActiveSubmenu(null);
     } else {
       setActiveSubmenu(id);
+      // Close nested submenu when parent is closed
+      setActiveNestedSubmenu(null);
+    }
+  };
+
+  const toggleNestedSubmenu = (id) => {
+    if (activeNestedSubmenu === id) {
+      setActiveNestedSubmenu(null);
+    } else {
+      setActiveNestedSubmenu(id);
     }
   };
 
@@ -123,24 +145,96 @@ const Sidebar = () => {
                 {open && activeSubmenu === menu.id && (
                   <div className="ml-6 mt-2 flex flex-col gap-2">
                     {menu.children.map((submenu, j) => (
-                      <Link to={submenu.link} key={j}>
-                        <div
-                          className="flex items-center gap-3.5 font-medium p-2 hover:bg-blue-100 rounded-md"
-                          style={{ color: "#333333" }}
-                        >
-                          <div>
-                            {React.createElement(submenu.icon, { size: "18" })}
-                          </div>
-                          <h2
-                            className={`whitespace-pre duration-500 ${
-                              !open &&
-                              "opacity-0 translate-x-28 overflow-hidden"
-                            }`}
-                          >
-                            {submenu.name}
-                          </h2>
-                        </div>
-                      </Link>
+                      <div key={j}>
+                        {submenu.children ? (
+                          // Nested submenu
+                          <>
+                            <div
+                              className={`
+                                flex items-center gap-3.5 font-medium cursor-pointer p-2 hover:bg-blue-100 rounded-md
+                                ${
+                                  activeNestedSubmenu === submenu.id
+                                    ? "bg-blue-100"
+                                    : ""
+                                }
+                              `}
+                              onClick={() => toggleNestedSubmenu(submenu.id)}
+                              style={{ color: "#333333" }}
+                            >
+                              <div>
+                                {React.createElement(submenu.icon, {
+                                  size: "18",
+                                })}
+                              </div>
+                              <h2
+                                className={`whitespace-pre duration-500 ${
+                                  !open &&
+                                  "opacity-0 translate-x-28 overflow-hidden"
+                                }`}
+                              >
+                                {submenu.name}
+                              </h2>
+                              {open && (
+                                <span className="ml-auto">
+                                  {activeNestedSubmenu === submenu.id
+                                    ? "▲"
+                                    : "▼"}
+                                </span>
+                              )}
+                            </div>
+                            {/* Nested submenu items */}
+                            {open && activeNestedSubmenu === submenu.id && (
+                              <div className="ml-6 mt-2 flex flex-col gap-2">
+                                {submenu.children.map((nestedSubmenu, k) => (
+                                  <Link to={nestedSubmenu.link} key={k}>
+                                    <div
+                                      className="flex items-center gap-3.5 font-medium p-2 hover:bg-blue-100 rounded-md"
+                                      style={{ color: "#333333" }}
+                                    >
+                                      <div>
+                                        {React.createElement(
+                                          nestedSubmenu.icon,
+                                          { size: "16" }
+                                        )}
+                                      </div>
+                                      <h2
+                                        className={`whitespace-pre duration-500 ${
+                                          !open &&
+                                          "opacity-0 translate-x-28 overflow-hidden"
+                                        }`}
+                                      >
+                                        {nestedSubmenu.name}
+                                      </h2>
+                                    </div>
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          // Regular submenu item
+                          <Link to={submenu.link}>
+                            <div
+                              className="flex items-center gap-3.5 font-medium p-2 hover:bg-blue-100 rounded-md"
+                              style={{ color: "#333333" }}
+                            >
+                              <div>
+                                {React.createElement(submenu.icon, {
+                                  size: "18",
+                                })}
+                              </div>
+                              <h2
+                                className={`whitespace-pre duration-500 ${
+                                  !open &&
+                                  "opacity-0 translate-x-28 overflow-hidden"
+                                }`}
+                              >
+                                {submenu.name}
+                              </h2>
+                            </div>
+                          </Link>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}

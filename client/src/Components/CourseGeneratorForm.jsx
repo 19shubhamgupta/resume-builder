@@ -2,9 +2,19 @@ import React, { useState, useCallback } from "react";
 import { X, Plus, ArrowRight, ArrowLeft } from "lucide-react";
 import GeneratingLoader from "./GeneratingLoader";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useCourseStore } from "../store/useCourseStore";
 
 const CourseGeneratorForm = () => {
   const [step, setStep] = useState(1);
+  const navigate = useNavigate();
+
+  // Access the course store
+  const {
+    isGeneratingCourse,
+    generateRoadmap,
+    setCourseData,
+  } = useCourseStore();
 
   // Initialize react-hook-form
   const { control, getValues, watch } = useForm({
@@ -55,26 +65,36 @@ const CourseGeneratorForm = () => {
     }
   };
 
-  // Go to previous step
   const prevStep = () => {
     setStep(step - 1);
   };
 
-  // Log collected information and start generating course
-  const startGenerating = () => {
-    // Log all collected information using our helper function
-    logFormData();
+  const startGenerating = async () => {
+    // Get form data using our helper function
+    const courseData = logFormData();
 
+    // Update step to show loading UI
     setStep(4);
 
-    // Simulate completion after 6 seconds
-    setTimeout(() => {
-      // Here you would typically redirect to the generated course or show completion
-      alert("Course generated successfully!");
-      // You could redirect here or show the generated content
-    }, 6000);
-  };
+    // Store the course data in the global state
+    setCourseData(courseData);
 
+    // Prepare data for roadmap generation with isCourse flag
+    const requestData = {
+      ...courseData,
+    };
+
+    const res = await generateRoadmap(requestData);
+
+    // Check if generation is complete before navigating
+    if (res && !isGeneratingCourse) {
+      navigate(`/roadmap/customize-roadmap/course/${res}`);
+    }
+    if (!res) {
+      // If generation failed, navigate back to step 1
+      setStep(1);
+    }
+  };
   // Check if current step is valid and can proceed
   const isStepValid = useCallback(() => {
     // Using watchedValues ensures re-rendering when any form value changes

@@ -21,7 +21,7 @@ const userSchemsa = new mongoose.Schema(
     },
     loginSource: {
       type: String,
-      enum: ["resume-builder", "google", 'github'],
+      enum: ["resume-builder", "google", "github"],
       default: "resume-builder",
     },
     googleId: {
@@ -29,6 +29,14 @@ const userSchemsa = new mongoose.Schema(
       unique: true,
       sparse: true, // Allows null values but ensures uniqueness when present
     },
+    roadmapsCreated: {
+      type: [Object],
+      default: [],
+    },
+    bookmarks:{
+      type: [String],
+      dafault: [],
+    }
   },
   {
     timestamps: true,

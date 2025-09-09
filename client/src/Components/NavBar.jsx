@@ -134,3 +134,9 @@ const NavBar = ({ toggleSidebar }) => {
   );
 };
 export default NavBar;
+
+/*
+make it like this when we lik on overview or any other thing then only its inside thing should be vissible remove next and back btn also make the ui exactly as same as the image i am giving you also ask me anything you wnat regarding ui
+
+
+*/
