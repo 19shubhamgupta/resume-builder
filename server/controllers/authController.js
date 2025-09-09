@@ -4,6 +4,7 @@ let arctic;
 (async () => {
   arctic = await import("arctic");
 })();
+
 const { generateToken } = require("../lib/generateToken");
 const user = require("../models/user");
 const bcrypt = require("bcryptjs");

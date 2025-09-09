@@ -1,7 +1,7 @@
 // Dynamic import for ES modules
 let Google;
 (async () => {
-  const arctic = await import("arctic");
+  const arctic = await import('arctic');
   Google = arctic.Google;
 })();
 
