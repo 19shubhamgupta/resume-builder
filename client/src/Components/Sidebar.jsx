@@ -14,16 +14,16 @@ const Sidebar = () => {
   const [open, setOpen] = useState(true);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [activeNestedSubmenu, setActiveNestedSubmenu] = useState(null);
-  const { userRoadmaps , getUserRoadmaps} = useCourseStore();
+  const { userRoadmaps, getUserRoadmaps } = useCourseStore();
 
-  useEffect(()=>{
-     getUserRoadmaps();
-  } , [])
+  useEffect(() => {
+    getUserRoadmaps();
+  }, []);
 
   const menus = [
     {
       name: "Create/Edit Resume",
-      link: "/resume-builder",
+      link: "/templates",
       icon: RiFileUserLine,
     },
     {

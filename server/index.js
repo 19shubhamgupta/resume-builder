@@ -6,6 +6,7 @@ const ConnectDB = require("./lib/db");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const roadmapRouter = require("./routes/roadmapRouter");
+const resumeRouter = require("./routes/resumeRouter");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
 app.use("/api/roadmap" , roadmapRouter)
+app.use("/api/resume", resumeRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));

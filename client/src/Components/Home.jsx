@@ -5,7 +5,10 @@ const Hero = () => {
   return (
     <section className="lg:flex lg:h-[825px] lg:justify-center">
       {/* Left Spacer */}
-      <div className="hidden lg:block" style={{ flexBasis: "75px", minWidth: 0 }}></div>
+      <div
+        className="hidden lg:block"
+        style={{ flexBasis: "75px", minWidth: 0 }}
+      ></div>
 
       <div className="mx-auto max-w-xl pt-8 text-center lg:mx-0 lg:grow lg:pt-32 lg:text-left">
         <h1 className="text-primary pb-2 text-4xl font-bold lg:text-5xl">
@@ -16,10 +19,10 @@ const Hero = () => {
         <p className="mt-3 text-lg lg:mt-5 lg:text-xl">
           With this free, open-source, and powerful resume builder
         </p>
-        <a href="/resume-import" className="btn-primary mt-6 lg:mt-14">
+        <a href="/templates" className="btn-primary mt-6 lg:mt-14">
           Create Resume <span aria-hidden="true">→</span>
         </a>
-        
+
         <p className="mt-3 text-sm text-gray-600 lg:mt-36">
           Already have a resume? Test its ATS readability with the{" "}
           <a href="/resume-parser" className="underline underline-offset-2">
@@ -29,7 +32,10 @@ const Hero = () => {
       </div>
 
       {/* Right Spacer */}
-      <div className="hidden lg:block" style={{ flexBasis: "100px", minWidth: "50px" }}></div>
+      <div
+        className="hidden lg:block"
+        style={{ flexBasis: "100px", minWidth: "50px" }}
+      ></div>
 
       {/* Placeholder instead of AutoTypingResume */}
       <div className="mt-6 flex justify-center lg:mt-4 lg:block lg:grow">
