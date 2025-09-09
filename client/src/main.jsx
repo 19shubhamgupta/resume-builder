@@ -7,6 +7,8 @@ import LoginPage from "./Pages/LoginPage.jsx";
 import SignupPage from "./Pages/SignupPage.jsx";
 import RoadmapPage from "./Pages/RoadmapPage.jsx";
 import CourseGeneratorPage from "./Pages/CourseGeneratorPage.jsx";
+import ImportResume from "./Pages/ImportResume.jsx";
+import ResumeBuilder from "./Pages/ResumeBuilder.jsx";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +20,8 @@ const router = createBrowserRouter([
       { path: "/signup", element: <SignupPage /> },
       { path: "/roadmap", element: <RoadmapPage /> },
       { path: "/course-generator", element: <CourseGeneratorPage /> },
+      { path: "/resume-import", element: <ImportResume /> },
+      { path: "/resume-builder", element: <ResumeBuilder /> },
     ],
   },
 ]);
