@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GeneratingLoader from "../Components/GeneratingLoader";
 import { useStoreAuth } from "../store/useResumeStore";
 import { ArrowRight, ArrowLeft, Upload, FileText } from "lucide-react";
@@ -15,7 +15,7 @@ const TailorInput = () => {
   const [useManual, setUseManual] = useState(false);
 
   // Zustand store
-  const { isTailoring, getTailorData } = useStoreAuth();
+  const { isTailoring, getTailorData, tailoredData } = useStoreAuth();
 
   // Handle submit
   const handleSubmit = () => {
@@ -35,6 +35,13 @@ const TailorInput = () => {
     getTailorData(formData);
     setStep(3); // Show loader step
   };
+
+  // Log tailored data once ready
+  useEffect(() => {
+    if (!isTailoring && tailoredData) {
+      console.log("✅ Tailored Data:", tailoredData);
+    }
+  }, [isTailoring, tailoredData]);
 
   // Step 1: Resume PDF upload
   const renderStep1 = () => (
@@ -150,10 +157,18 @@ const TailorInput = () => {
     return (
       <div className="w-full flex items-center justify-center min-h-[60vh]">
         <div className="max-w-200 border-4 border-blue-950 rounded-lg p-8 bg-white shadow-lg">
-          <GeneratingLoader />
-          <div className="text-center text-blue-950 font-bold mt-4">
-            {isTailoring ? "Tailoring your resume..." : "Done!"}
-          </div>
+          {isTailoring ? (
+            <>
+              <GeneratingLoader />
+              <div className="text-center text-blue-950 font-bold mt-4">
+                Tailoring your resume...
+              </div>
+            </>
+          ) : (
+            <div className="text-center text-green-600 font-bold mt-4">
+              ✅ Done!
+            </div>
+          )}
         </div>
       </div>
     );

@@ -15,6 +15,7 @@ export const useStoreAuth = create((set, get) => ({
     try {
         set({ isTailoring: true })
       const res = await axiosInstance.post("/resume/tailor-info", data);
+      console.log("✅ Tailored Data Response:", res.data);
       set({ tailorData: res.data, isTailoring: false });
     } catch (err) {
       if (err.response) {
