@@ -6,6 +6,9 @@ import TemplateSelector from "../Components/TemplateSelector";
 import html2canvas from "html2canvas";
 import toast, { Toaster } from "react-hot-toast";
 import "../styles/pdf-styles.css";
+import {useSavedResumeStore} from "../store/useSavedResumeStore";
+import { jsPDF } from "jspdf";
+import SaveResumeModal from "../Components/SaveResumeModal";
 
 export default function ResumeBuilder() {
   const [searchParams] = useSearchParams();
