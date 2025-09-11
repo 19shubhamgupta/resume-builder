@@ -3,7 +3,7 @@ import { HiMenuAlt3 } from "react-icons/hi";
 import { RiFileUserLine } from "react-icons/ri";
 import { BsBarChartFill } from "react-icons/bs";
 import { MdMenuBook } from "react-icons/md";
-import { FaUser } from "react-icons/fa6";
+import { FaUser} from "react-icons/fa6";
 import { IoSettingsSharp } from "react-icons/io5";
 import { AiOutlineBook } from "react-icons/ai";
 import { FaRobot } from "react-icons/fa";
@@ -18,13 +18,18 @@ const Sidebar = () => {
 
   useEffect(() => {
     getUserRoadmaps();
-  }, []);
+  }, [getUserRoadmaps]);
 
   const menus = [
     {
       name: "Create/Edit Resume",
       link: "/templates",
       icon: RiFileUserLine,
+    },
+    {
+      name: "My Resumes",
+      link: "/my-resumes",
+      icon: FaUser,
     },
     {
       name: "Roadmaps",

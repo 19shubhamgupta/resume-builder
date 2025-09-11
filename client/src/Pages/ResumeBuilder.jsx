@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import ResumeForm from "../Components/ResumeForm";
 import ResumePreview from "../Components/ResumePreview";
 import TemplateSelector from "../Components/TemplateSelector";
+import SaveResumeModal from "../Components/SaveResumeModal";
+import { useSavedResumeStore } from "../store/useSavedResumeStore";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import toast, { Toaster } from "react-hot-toast";
@@ -12,6 +14,13 @@ export default function ResumeBuilder() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const templateFromUrl = searchParams.get("template") || "template1";
+  const resumeIdFromUrl = searchParams.get("resumeId");
+
+  const { createResume, updateResume, getResumeById, isSaving } =
+    useSavedResumeStore();
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentResumeId, setCurrentResumeId] = useState(null);
 
   const [resumeData, setResumeData] = useState({
     personalInfo: {
@@ -56,6 +65,82 @@ export default function ResumeBuilder() {
   useEffect(() => {
     setSelectedTemplate(templateFromUrl);
   }, [templateFromUrl]);
+
+  // Load existing resume if resumeId is provided
+  useEffect(() => {
+    const loadExistingResume = async () => {
+      if (resumeIdFromUrl) {
+        const result = await getResumeById(resumeIdFromUrl);
+        if (result.success) {
+          const resume = result.resume;
+          setResumeData({
+            personalInfo: resume.personalInfo || {
+              fullName: "",
+              jobTitle: "",
+              email: "",
+              phone: "",
+              website: "",
+              location: "",
+              objective: "",
+            },
+            workExperience: resume.workExperience || [
+              {
+                id: 1,
+                company: "",
+                position: "",
+                startDate: "",
+                endDate: "",
+                description: "",
+              },
+            ],
+            education: resume.education || [
+              {
+                id: 1,
+                institution: "",
+                degree: "",
+                field: "",
+                startDate: "",
+                endDate: "",
+                gpa: "",
+                additionalInfo: "",
+              },
+            ],
+            projects: resume.projects || [
+              { id: 1, name: "", date: "", description: "" },
+            ],
+            skills: resume.skills || [],
+          });
+          setSelectedTemplate(resume.templateName);
+          setIsEditing(true);
+          setCurrentResumeId(resumeIdFromUrl);
+        }
+      }
+    };
+
+    loadExistingResume();
+  }, [resumeIdFromUrl, getResumeById]);
+
+  const handleSaveResume = async (resumeName, templateName, resumeData) => {
+    let result;
+    if (isEditing && currentResumeId) {
+      result = await updateResume(
+        currentResumeId,
+        resumeName,
+        templateName,
+        resumeData
+      );
+    } else {
+      result = await createResume(resumeName, templateName, resumeData);
+    }
+
+    if (result.success) {
+      setShowSaveModal(false);
+      if (!isEditing) {
+        setIsEditing(true);
+        setCurrentResumeId(result.resume.id);
+      }
+    }
+  };
 
   const handleInputChange = (section, field, value, id = null) => {
     setResumeData((prevData) => {
@@ -348,12 +433,43 @@ export default function ResumeBuilder() {
                 <h2 className="text-xl font-semibold text-gray-800">
                   Live Preview
                 </h2>
-                <button
-                  onClick={downloadResume}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                >
-                  Download PDF
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    disabled={isSaving}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {isSaving && (
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                          className="opacity-25"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          className="opacity-75"
+                        />
+                      </svg>
+                    )}
+                    {isSaving
+                      ? "Saving..."
+                      : isEditing
+                      ? "Update Resume"
+                      : "Save Resume"}
+                  </button>
+                  <button
+                    onClick={downloadResume}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                  >
+                    Download PDF
+                  </button>
+                </div>
               </div>
               <div className="border border-gray-200 rounded-lg p-6 min-h-[600px]">
                 <div ref={resumeRef}>
@@ -366,6 +482,16 @@ export default function ResumeBuilder() {
             </div>
           </div>
         </div>
+
+        {/* Save Resume Modal */}
+        <SaveResumeModal
+          isOpen={showSaveModal}
+          onClose={() => setShowSaveModal(false)}
+          onSave={handleSaveResume}
+          isSaving={isSaving}
+          resumeData={resumeData}
+          selectedTemplate={selectedTemplate}
+        />
       </main>
     </>
   );

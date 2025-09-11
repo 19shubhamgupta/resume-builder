@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import GeneratingLoader from "../Components/GeneratingLoader";
 import { useStoreAuth } from "../store/useResumeStore";
 import { ArrowRight, ArrowLeft, Upload, FileText } from "lucide-react";
+import {useNavigate } from "react-router-dom";
 
 const TailorInput = () => {
   const [step, setStep] = useState(1);
@@ -13,12 +14,14 @@ const TailorInput = () => {
     description: "",
   });
   const [useManual, setUseManual] = useState(false);
+  const navigate = useNavigate();
+
 
   // Zustand store
-  const { isTailoring, getTailorData, tailoredData } = useStoreAuth();
+  const { isTailoring, getTailorData } = useStoreAuth();
 
   // Handle submit
-  const handleSubmit = () => {
+  const handleSubmit = async()=>{
     const formData = new FormData();
     if (resumeFile) {
       formData.append("resume", resumeFile);
@@ -32,16 +35,15 @@ const TailorInput = () => {
       formData.append("job", jobFile);
     }
 
-    getTailorData(formData);
+    
     setStep(3); // Show loader step
+    const res = await getTailorData(formData);
+    if(!isTailoring && res){
+      navigate('/tailoring-resume')
+    }
   };
 
-  // Log tailored data once ready
-  useEffect(() => {
-    if (!isTailoring && tailoredData) {
-      console.log("✅ Tailored Data:", tailoredData);
-    }
-  }, [isTailoring, tailoredData]);
+  // Navigate to tailoring page
 
   // Step 1: Resume PDF upload
   const renderStep1 = () => (

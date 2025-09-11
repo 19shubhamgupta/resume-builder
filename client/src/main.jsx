@@ -11,6 +11,8 @@ import Course from "./Pages/Course.jsx";
 import ResumeBuilder from "./Pages/ResumeBuilder.jsx";
 import TemplateGallery from "./Pages/TemplateGallery.jsx";
 import TailorInput from "./Pages/TailorInput.jsx";
+import TailoringResumePage from "./Pages/TailoringResumePage.jsx";
+import MyResumesPage from "./Pages/MyResumesPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -25,7 +27,9 @@ const router = createBrowserRouter([
       { path: "/roadmap/customize-roadmap/course/:id", element: <Course /> },
       { path: "/templates", element: <TemplateGallery /> },
       { path: "/resume-builder", element: <ResumeBuilder /> },
+      { path: "/my-resumes", element: <MyResumesPage /> },
       { path: "/tailorinput", element: <TailorInput /> },
+      { path: "/tailoring-resume", element: <TailoringResumePage /> },
     ],
   },
 ]);
