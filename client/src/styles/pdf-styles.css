@@ -49,3 +49,19 @@
   background-image: none !important;
   color: #1e293b !important;
 }
+/* Force Tailwind colors into hex/rgb for PDF export */
+.bg-blue-600 {
+  background-color: #2563eb !important;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+.text-gray-800 {
+  color: #1f2937 !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}

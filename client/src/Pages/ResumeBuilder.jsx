@@ -3,10 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import ResumeForm from "../Components/ResumeForm";
 import ResumePreview from "../Components/ResumePreview";
 import TemplateSelector from "../Components/TemplateSelector";
-import SaveResumeModal from "../Components/SaveResumeModal";
-import { useSavedResumeStore } from "../store/useSavedResumeStore";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import toast, { Toaster } from "react-hot-toast";
 import "../styles/pdf-styles.css";
 
@@ -60,6 +57,7 @@ export default function ResumeBuilder() {
 
   const [newSkill, setNewSkill] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(templateFromUrl);
+  const [isDownloading, setIsDownloading] = useState(false);
   const resumeRef = useRef();
 
   useEffect(() => {
@@ -189,165 +187,93 @@ export default function ResumeBuilder() {
     }));
   };
 
+  // Function to replace unsupported CSS before conversion
+  const replaceUnsupportedCSS = (htmlElement) => {
+    const clone = htmlElement.cloneNode(true);
+    const styleSheets = document.styleSheets;
+
+    // Create a new style element with modified CSS
+    const newStyle = document.createElement("style");
+    let modifiedCSS = "";
+
+    // Iterate through all stylesheets and replace oklch values
+    for (let i = 0; i < styleSheets.length; i++) {
+      try {
+        const rules = styleSheets[i].cssRules;
+        for (let j = 0; j < rules.length; j++) {
+          let ruleText = rules[j].cssText;
+          // Replace oklch colors with rgb equivalents
+          ruleText = ruleText.replace(/oklch\([^)]+\)/g, (match) => {
+            // Simple replacement logic - you might need to customize this
+            if (match.includes("primary")) return "rgb(59, 130, 246)";
+            if (match.includes("accent")) return "rgb(79, 70, 229)";
+            return "rgb(156, 163, 175)"; // default gray
+          });
+          modifiedCSS += ruleText;
+        }
+      } catch (e) {
+        console.log("Cannot access stylesheet:", e);
+      }
+    }
+
+    newStyle.textContent = modifiedCSS;
+    clone.appendChild(newStyle);
+    return clone;
+  };
+
+  // ✅ Improved Download Method using html2canvas with CSS fallbacks
   const downloadResume = async () => {
     if (!resumeRef.current) {
       toast.error("Resume preview not available");
       return;
     }
 
+    if (isDownloading) return;
+
+    setIsDownloading(true);
+    toast.loading("Preparing your resume...", { id: "download" });
+
     try {
-      toast.loading("Preparing your resume...", { id: "download" });
+      // Replace unsupported CSS values
+      const printableElement = replaceUnsupportedCSS(resumeRef.current);
 
-      // Find the actual resume content element (first child of the ref)
-      const resumeElement =
-        resumeRef.current.querySelector(".resume-preview") ||
-        resumeRef.current.firstElementChild;
+      // Temporarily append to body to ensure proper rendering
+      document.body.appendChild(printableElement);
+      printableElement.style.position = "absolute";
+      printableElement.style.left = "-9999px";
 
-      if (!resumeElement) {
-        toast.error("Resume content not found");
-        return;
-      }
-
-      // Store original styles to restore later
-      const originalStyles = new Map();
-
-      // Function to safely replace gradients while preserving layout
-      const replaceGradients = (element) => {
-        const computedStyle = window.getComputedStyle(element);
-
-        // Store original styles
-        originalStyles.set(element, {
-          background: element.style.background,
-          backgroundImage: element.style.backgroundImage,
-          color: element.style.color,
-          webkitBackgroundClip: element.style.webkitBackgroundClip,
-          backgroundClip: element.style.backgroundClip,
-          webkitTextFillColor: element.style.webkitTextFillColor,
-          className: element.className,
-        });
-
-        // Handle gradient text elements
-        if (
-          element.classList.contains("bg-clip-text") ||
-          element.classList.contains("text-transparent")
-        ) {
-          element.style.color = "#1e293b";
-          element.style.background = "none";
-          element.style.backgroundImage = "none";
-          element.style.webkitBackgroundClip = "unset";
-          element.style.backgroundClip = "unset";
-          element.style.webkitTextFillColor = "#1e293b";
-          element.classList.remove("text-transparent");
-        }
-
-        // Handle gradient background elements
-        if (
-          computedStyle.backgroundImage &&
-          computedStyle.backgroundImage.includes("gradient")
-        ) {
-          element.style.backgroundImage = "none";
-          // Preserve gradient colors as solid backgrounds
-          if (computedStyle.backgroundImage.includes("blue")) {
-            element.style.background = "#3b82f6"; // blue-500
-          } else if (computedStyle.backgroundImage.includes("purple")) {
-            element.style.background = "#8b5cf6"; // purple-500
-          } else if (computedStyle.backgroundImage.includes("pink")) {
-            element.style.background = "#ec4899"; // pink-500
-          } else {
-            element.style.background = "#f8fafc"; // default light gray
-          }
-        }
-
-        // Remove animation classes
-        element.classList.remove("animate-pulse");
-
-        // Process child elements
-        Array.from(element.children).forEach((child) => {
-          replaceGradients(child);
-        });
-      };
-
-      // Apply gradient replacements
-      replaceGradients(resumeElement);
-
-      // Force a repaint
-      resumeElement.offsetHeight;
-
-      // Wait for DOM updates
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      const canvas = await html2canvas(resumeElement, {
-        scale: 1.5,
+      // Use html2canvas to capture the resume with styles
+      const canvas = await html2canvas(printableElement, {
+        scale: 2, // Higher quality
         useCORS: true,
         backgroundColor: "#ffffff",
-        allowTaint: true,
         logging: false,
-        width: resumeElement.offsetWidth,
-        height: resumeElement.offsetHeight,
-        foreignObjectRendering: false,
-        ignoreElements: (element) => {
-          return (
-            element.classList.contains("animate-pulse") ||
-            element.tagName === "SCRIPT" ||
-            element.tagName === "STYLE"
-          );
-        },
       });
 
-      // Restore original styles
-      originalStyles.forEach((styles, element) => {
-        element.style.background = styles.background;
-        element.style.backgroundImage = styles.backgroundImage;
-        element.style.color = styles.color;
-        element.style.webkitBackgroundClip = styles.webkitBackgroundClip;
-        element.style.backgroundClip = styles.backgroundClip;
-        element.style.webkitTextFillColor = styles.webkitTextFillColor;
-        element.className = styles.className;
-      });
+      // Remove the temporary element
+      document.body.removeChild(printableElement);
 
-      // Create PDF with better size handling
-      const imgData = canvas.toDataURL("image/png", 0.95);
+      // Create PDF
+      const imgData = canvas.toDataURL("image/png", 1.0);
       const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = 297; // A4 height in mm
+      // Calculate aspect ratio and dimensions
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 0;
 
-      // Calculate proper scaling to fit content on one page when possible
-      const canvasAspectRatio = canvas.width / canvas.height;
-      const pdfAspectRatio = pdfWidth / pdfHeight;
-
-      let imgWidth, imgHeight;
-
-      if (canvasAspectRatio > pdfAspectRatio) {
-        // Canvas is wider, fit to width
-        imgWidth = pdfWidth;
-        imgHeight = pdfWidth / canvasAspectRatio;
-      } else {
-        // Canvas is taller, fit to height or allow multiple pages
-        imgWidth = pdfHeight * canvasAspectRatio;
-        imgHeight = pdfHeight;
-      }
-
-      // If content is too tall, allow multiple pages but optimize
-      if (imgHeight > pdfHeight) {
-        imgWidth = pdfWidth;
-        imgHeight = (canvas.height * pdfWidth) / canvas.width;
-      }
-
-      let yPosition = 0;
-      let remainingHeight = imgHeight;
-
-      // Add first page
-      pdf.addImage(imgData, "PNG", 0, yPosition, imgWidth, imgHeight);
-      remainingHeight -= pdfHeight;
-
-      // Add additional pages if needed
-      while (remainingHeight > 0) {
-        pdf.addPage();
-        yPosition = -pdfHeight + (imgHeight - remainingHeight);
-        pdf.addImage(imgData, "PNG", 0, yPosition, imgWidth, imgHeight);
-        remainingHeight -= pdfHeight;
-      }
+      pdf.addImage(
+        imgData,
+        "PNG",
+        imgX,
+        imgY,
+        imgWidth * ratio,
+        imgHeight * ratio
+      );
 
       const fileName = `${resumeData.personalInfo.fullName || "resume"}.pdf`;
       pdf.save(fileName);
@@ -358,6 +284,8 @@ export default function ResumeBuilder() {
       toast.error(`Failed to download resume: ${error.message}`, {
         id: "download",
       });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -370,13 +298,6 @@ export default function ResumeBuilder() {
           style: {
             background: "#363636",
             color: "#fff",
-          },
-          success: {
-            duration: 3000,
-            theme: {
-              primary: "green",
-              secondary: "black",
-            },
           },
         }}
       />
@@ -433,46 +354,15 @@ export default function ResumeBuilder() {
                 <h2 className="text-xl font-semibold text-gray-800">
                   Live Preview
                 </h2>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowSaveModal(true)}
-                    disabled={isSaving}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {isSaving && (
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                          className="opacity-25"
-                        />
-                        <path
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          className="opacity-75"
-                        />
-                      </svg>
-                    )}
-                    {isSaving
-                      ? "Saving..."
-                      : isEditing
-                      ? "Update Resume"
-                      : "Save Resume"}
-                  </button>
-                  <button
-                    onClick={downloadResume}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                  >
-                    Download PDF
-                  </button>
-                </div>
+                <button
+                  onClick={downloadResume}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                >
+                  Download PDF
+                </button>
               </div>
               <div className="border border-gray-200 rounded-lg p-6 min-h-[600px]">
-                <div ref={resumeRef}>
+                <div ref={resumeRef} className="resume-preview">
                   <ResumePreview
                     resumeData={resumeData}
                     template={selectedTemplate}
