@@ -133,9 +133,10 @@ const Sidebar = ({ open, setOpen }) => {
                     style={{
                       transitionDelay: `${i + 3}00ms`,
                     }}
-                    className={`whitespace-pre duration-500 ${
+                    className={`whitespace-pre duration-500 truncate max-w-[150px] ${
                       !open && "opacity-0 translate-x-28 overflow-hidden"
                     }`}
+                    title={menu.name}
                   >
                     {menu.name}
                   </h2>
@@ -179,10 +180,11 @@ const Sidebar = ({ open, setOpen }) => {
                                 })}
                               </div>
                               <h2
-                                className={`whitespace-pre duration-500 ${
+                                className={`whitespace-pre duration-500 truncate max-w-[120px] ${
                                   !open &&
                                   "opacity-0 translate-x-28 overflow-hidden"
                                 }`}
+                                title={submenu.name}
                               >
                                 {submenu.name}
                               </h2>
@@ -210,10 +212,11 @@ const Sidebar = ({ open, setOpen }) => {
                                         )}
                                       </div>
                                       <h2
-                                        className={`whitespace-pre duration-500 ${
+                                        className={`whitespace-pre duration-500 truncate max-w-[150px] ${
                                           !open &&
                                           "opacity-0 translate-x-28 overflow-hidden"
                                         }`}
+                                        title={nestedSubmenu.name}
                                       >
                                         {nestedSubmenu.name}
                                       </h2>
@@ -236,10 +239,11 @@ const Sidebar = ({ open, setOpen }) => {
                                 })}
                               </div>
                               <h2
-                                className={`whitespace-pre duration-500 ${
+                                className={`whitespace-pre duration-500 truncate max-w-[120px] ${
                                   !open &&
                                   "opacity-0 translate-x-28 overflow-hidden"
                                 }`}
+                                title={submenu.name}
                               >
                                 {submenu.name}
                               </h2>
@@ -264,9 +268,10 @@ const Sidebar = ({ open, setOpen }) => {
                   style={{
                     transitionDelay: `${i + 3}00ms`,
                   }}
-                  className={`whitespace-pre duration-500 ${
+                  className={`whitespace-pre duration-500 truncate max-w-[150px] ${
                     !open && "opacity-0 translate-x-28 overflow-hidden"
                   }`}
+                  title={menu.name}
                 >
                   {menu.name}
                 </h2>
@@ -290,9 +295,10 @@ const Sidebar = ({ open, setOpen }) => {
                   style={{
                     transitionDelay: `${i + 3}00ms`,
                   }}
-                  className={`whitespace-pre duration-500 ${
+                  className={`whitespace-pre duration-500 truncate max-w-[150px] ${
                     !open && "opacity-0 translate-x-28 overflow-hidden"
                   }`}
+                  title={menu.name}
                 >
                   {menu.name}
                 </h2>

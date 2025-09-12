@@ -6,7 +6,7 @@ import TemplateSelector from "../Components/TemplateSelector";
 import html2canvas from "html2canvas";
 import toast, { Toaster } from "react-hot-toast";
 import "../styles/pdf-styles.css";
-import {useSavedResumeStore} from "../store/useSavedResumeStore";
+import { useSavedResumeStore } from "../store/useSavedResumeStore";
 import { jsPDF } from "jspdf";
 import SaveResumeModal from "../Components/SaveResumeModal";
 
@@ -357,12 +357,26 @@ export default function ResumeBuilder() {
                 <h2 className="text-xl font-semibold text-gray-800">
                   Live Preview
                 </h2>
-                <button
-                  onClick={downloadResume}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                >
-                  Download PDF
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowSaveModal(true)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+                    disabled={isSaving}
+                  >
+                    {isSaving
+                      ? "Saving..."
+                      : isEditing
+                      ? "Update Resume"
+                      : "Save Resume"}
+                  </button>
+                  <button
+                    onClick={downloadResume}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                    disabled={isDownloading}
+                  >
+                    {isDownloading ? "Downloading..." : "Download PDF"}
+                  </button>
+                </div>
               </div>
               <div className="border border-gray-200 rounded-lg p-6 min-h-[600px]">
                 <div ref={resumeRef} className="resume-preview">

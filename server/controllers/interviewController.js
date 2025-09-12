@@ -8,6 +8,39 @@ if (!process.env.GEMINI_API_KEY) {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 /**
+ * Utility: Clean Gemini response and safely parse JSON
+ */
+function safeJSONParse(responseText, fallbackType = "array") {
+  try {
+    // Remove code fences like ```json ... ```
+    let cleaned = responseText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.warn("Direct JSON.parse failed, attempting regex extraction...");
+
+    // Try array match first
+    if (fallbackType === "array") {
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+    }
+
+    // Try object match
+    const objMatch = responseText.match(/\{[\s\S]*\}/);
+    if (objMatch) {
+      return JSON.parse(objMatch[0]);
+    }
+
+    return fallbackType === "array" ? [] : {};
+  }
+}
+
+/**
  * Start interview → generate questions on the fly
  */
 exports.startInterview = async (req, res) => {
@@ -39,21 +72,14 @@ Format the response as a JSON array:
   }
 ]
 
-Return ONLY JSON array.
+Return ONLY JSON array. No extra text, no markdown.
 `;
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
     const responseText = await result.response.text();
 
-    let questions;
-    try {
-      questions = JSON.parse(responseText);
-    } catch (err) {
-      console.warn("JSON.parse failed for questions, extracting array...");
-      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-      questions = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
-    }
+    const questions = safeJSONParse(responseText, "array");
 
     return res.status(200).json({
       message: "Questions generated successfully",
@@ -138,21 +164,14 @@ Now evaluate and return JSON in this format:
   "summary": "Overall good performance but needs improvement."
 }
 
-Return ONLY JSON object.
+Return ONLY JSON object. No extra text, no markdown.
 `;
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
     const responseText = await result.response.text();
 
-    let report;
-    try {
-      report = JSON.parse(responseText);
-    } catch (err) {
-      console.warn("JSON.parse failed for report, extracting object...");
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      report = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
-    }
+    const report = safeJSONParse(responseText, "object");
 
     return res.status(200).json({
       message: "Interview report generated",
