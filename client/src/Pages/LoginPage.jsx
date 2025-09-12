@@ -9,6 +9,11 @@ function LoginPage() {
   const navigate = useNavigate();
   useEffect(() => {
     toggleNav(false);
+
+    // Cleanup function to show navbar when leaving the page
+    return () => {
+      toggleNav(true);
+    };
   }, [toggleNav]);
 
   const loginForm = (data) => {

@@ -3,18 +3,21 @@ import { HiMenuAlt3 } from "react-icons/hi";
 import { RiFileUserLine } from "react-icons/ri";
 import { BsBarChartFill } from "react-icons/bs";
 import { MdMenuBook } from "react-icons/md";
-import { FaUser} from "react-icons/fa6";
+import { FaUser } from "react-icons/fa6";
 import { IoSettingsSharp } from "react-icons/io5";
 import { AiOutlineBook } from "react-icons/ai";
 import { FaRobot } from "react-icons/fa";
+import { RiMagicLine } from "react-icons/ri";
+import { RiLogoutBoxLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { useCourseStore } from "../store/useCourseStore";
+import { useStoreAuth } from "../store/useAuthStore";
 
-const Sidebar = () => {
-  const [open, setOpen] = useState(true);
+const Sidebar = ({ open, setOpen }) => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [activeNestedSubmenu, setActiveNestedSubmenu] = useState(null);
   const { userRoadmaps, getUserRoadmaps } = useCourseStore();
+  const { logout } = useStoreAuth();
 
   useEffect(() => {
     getUserRoadmaps();
@@ -22,15 +25,21 @@ const Sidebar = () => {
 
   const menus = [
     {
-      name: "Create/Edit Resume",
+      name: "Create Resume",
       link: "/templates",
       icon: RiFileUserLine,
+    },
+    {
+      name: "AI Resume Tailor",
+      link: "/tailorinput",
+      icon: RiMagicLine,
     },
     {
       name: "My Resumes",
       link: "/my-resumes",
       icon: FaUser,
     },
+
     {
       name: "Roadmaps",
       icon: BsBarChartFill,
@@ -54,19 +63,14 @@ const Sidebar = () => {
       ],
     },
     {
-      name: "Generate",
+      name: "Generate Roadmaps",
       link: "/course-generator",
       icon: FaRobot,
     },
     {
-      name: "Profile",
-      link: "/profile",
-      icon: FaUser,
-    },
-    {
-      name: "Settings",
-      link: "/settings",
-      icon: IoSettingsSharp,
+      name: "Logout",
+      icon: RiLogoutBoxLine,
+      action: "logout", // Special action instead of link
     },
   ];
 
@@ -92,10 +96,8 @@ const Sidebar = () => {
     <div
       className={`min-h-screen ${
         open ? "w-72" : "w-16"
-      } duration-500 text-gray-800 px-4 fixed left-0 top-16 pt-4 border-r`}
+      } duration-500 text-blue-900 px-4 fixed left-0 top-0 pt-4 border-r-4 border-black bg-white`}
       style={{
-        backgroundColor: "#E9F1FA",
-        borderColor: "#CDDEEF",
         zIndex: 1000,
       }}
     >
@@ -119,7 +121,7 @@ const Sidebar = () => {
                     ${activeSubmenu === menu.id ? "bg-blue-100" : ""}
                   `}
                   onClick={() => toggleSubmenu(menu.id)}
-                  style={{ color: "#333333" }}
+                  style={{ color: "#1e3a8a" }}
                 >
                   <div>{React.createElement(menu.icon, { size: "20" })}</div>
                   <h2
@@ -164,7 +166,7 @@ const Sidebar = () => {
                                 }
                               `}
                               onClick={() => toggleNestedSubmenu(submenu.id)}
-                              style={{ color: "#333333" }}
+                              style={{ color: "#1e3a8a" }}
                             >
                               <div>
                                 {React.createElement(submenu.icon, {
@@ -194,7 +196,7 @@ const Sidebar = () => {
                                   <Link to={nestedSubmenu.link} key={k}>
                                     <div
                                       className="flex items-center gap-3.5 font-medium p-2 hover:bg-blue-100 rounded-md"
-                                      style={{ color: "#333333" }}
+                                      style={{ color: "#1e3a8a" }}
                                     >
                                       <div>
                                         {React.createElement(
@@ -221,7 +223,7 @@ const Sidebar = () => {
                           <Link to={submenu.link}>
                             <div
                               className="flex items-center gap-3.5 font-medium p-2 hover:bg-blue-100 rounded-md"
-                              style={{ color: "#333333" }}
+                              style={{ color: "#1e3a8a" }}
                             >
                               <div>
                                 {React.createElement(submenu.icon, {
@@ -244,12 +246,39 @@ const Sidebar = () => {
                   </div>
                 )}
               </>
+            ) : // Regular menu item without submenu
+            menu.action === "logout" ? (
+              // Logout button - handle click instead of link
+              <div
+                onClick={logout}
+                className={`group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-red-100 rounded-md cursor-pointer`}
+                style={{ color: "#dc2626" }}
+              >
+                <div>{React.createElement(menu.icon, { size: "20" })}</div>
+                <h2
+                  style={{
+                    transitionDelay: `${i + 3}00ms`,
+                  }}
+                  className={`whitespace-pre duration-500 ${
+                    !open && "opacity-0 translate-x-28 overflow-hidden"
+                  }`}
+                >
+                  {menu.name}
+                </h2>
+                <h2
+                  className={`${
+                    open && "hidden"
+                  } absolute left-48 bg-white font-semibold whitespace-pre text-gray-900 rounded-md drop-shadow-lg px-0 py-0 w-0 overflow-hidden group-hover:px-2 group-hover:py-1 group-hover:left-14 group-hover:duration-300 group-hover:w-fit`}
+                >
+                  {menu.name}
+                </h2>
+              </div>
             ) : (
-              // Regular menu item without submenu
+              // Regular link menu item
               <Link
                 to={menu.link}
                 className={`group flex items-center text-sm gap-3.5 font-medium p-2 hover:bg-blue-100 rounded-md`}
-                style={{ color: "#333333" }}
+                style={{ color: "#1e3a8a" }}
               >
                 <div>{React.createElement(menu.icon, { size: "20" })}</div>
                 <h2

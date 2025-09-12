@@ -13,6 +13,7 @@ import TemplateGallery from "./Pages/TemplateGallery.jsx";
 import TailorInput from "./Pages/TailorInput.jsx";
 import TailoringResumePage from "./Pages/TailoringResumePage.jsx";
 import MyResumesPage from "./Pages/MyResumesPage.jsx";
+import CoursePage from "./Pages/CoursePage.jsx";
 
 // 👉 Import our new pages
 import InterviewHomePage from "./Pages/InterviewHomePage.jsx";
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
       { path: "/roadmap", element: <RoadmapPage /> },
       { path: "/course-generator", element: <CourseGeneratorPage /> },
       { path: "/roadmap/customize-roadmap/course/:id", element: <Course /> },
+      { path: "/course/:id", element: <CoursePage /> },
       { path: "/templates", element: <TemplateGallery /> },
       { path: "/resume-builder", element: <ResumeBuilder /> },
       { path: "/my-resumes", element: <MyResumesPage /> },

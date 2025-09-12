@@ -10,9 +10,12 @@ const BASE_URL =
 export const useCourseStore = create((set, get) => ({
   isGeneratingRoadmap: false,
   isGeneratingCourse: false,
+  isGeneratingChpt: false,
+  chptData: null,
   userDataForRoadmap: null,
   userRoadmaps: [],
   courseData: null,
+  currentCourse: null, // Will store the current course being viewed
 
   // Set course generation state
   setIsGeneratingCourse: (value) => set({ isGeneratingCourse: value }),
@@ -68,6 +71,39 @@ export const useCourseStore = create((set, get) => ({
       }
       set({ isGeneratingRoadmap: false });
       return false;
+    }
+  },
+  generateChpt: async (data) => {
+    try {
+      set({ isGeneratingChpt: true });
+
+      const generatedchpt = await axiosInstance.post("/roadmap/chpt-gen", data);
+
+      // Transform the response into a structured course format
+      const courseContent = {
+        title: generatedchpt.data.title || "Course Chapter",
+        videoUrl: generatedchpt.data.videoUrl,
+        sections: generatedchpt.data.sections || [],
+        resources: generatedchpt.data.resources || [],
+      };
+
+      set({
+        chptData: generatedchpt,
+        currentCourse: courseContent,
+      });
+
+      toast.success("Generated successfully!");
+      set({ isGeneratingChpt: false });
+
+      return courseContent;
+    } catch (err) {
+      if (err.response) {
+        toast.error(err.response.data?.message || "Generation failed");
+      } else {
+        toast.error("Network error — please try again");
+      }
+      set({ isGeneratingChpt: false });
+      return null;
     }
   },
 }));

@@ -1,7 +1,6 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import { Toaster } from "react-hot-toast";
-import NavBar from "./Components/NavBar";
 import Sidebar from "./Components/Sidebar";
 import { useStoreAuth } from "./store/useAuthStore";
 import { useEffect, useState } from "react";
@@ -9,8 +8,8 @@ import { Loader } from "lucide-react";
 import toast from "react-hot-toast";
 
 function App() {
-  const [showSidebar, setShowSidebar] = useState(false);
-  const { authUser, checkAuth, isCheckingAuth } = useStoreAuth();
+  const [open, setOpen] = useState(true);
+  const { authUser, checkAuth, isCheckingAuth, showNavBar } = useStoreAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -55,6 +54,7 @@ function App() {
       navigate("/login", { replace: true });
     }
   }, [location, navigate]);
+  
   if (isCheckingAuth && !authUser)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -62,20 +62,13 @@ function App() {
       </div>
     );
 
-
-  // Toggle sidebar visibility
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
-
   return (
     <>
       <Toaster position="top-center" />
-      <NavBar toggleSidebar={toggleSidebar} />
-      {authUser && <Sidebar />}
+      {authUser && showNavBar && <Sidebar open={open} setOpen={setOpen} />}
       <div
         className={`${
-          authUser ? "ml-16 md:ml-72" : ""
+          authUser && showNavBar ? (open ? "ml-72" : "ml-16") : ""
         } transition-all duration-500`}
       >
         <Outlet />

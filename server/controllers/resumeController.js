@@ -302,11 +302,9 @@ exports.createResume = async (req, res) => {
 // Get all resumes for a user
 exports.getUserResumes = async (req, res) => {
   try {
-    const resumes = await Resume.find({ userId: req.user.id })
-      .sort({ lastModified: -1 })
-      .select(
-        "resumeName templateName personalInfo.fullName personalInfo.jobTitle lastModified createdAt"
-      );
+    const resumes = await Resume.find({ userId: req.user.id }).sort({
+      lastModified: -1,
+    });
 
     return res.status(200).json({
       message: "Resumes fetched successfully",

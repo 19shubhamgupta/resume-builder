@@ -15,7 +15,7 @@ const CourseGeneratorPage = () => {
 
   return (
     <div
-      className="min-h-screen pt-20 pb-10 px-4"
+      className="min-h-screen pt-4 pb-10 px-4"
       style={{ backgroundColor: "#E9F1FA" }}
     >
       <div className="container mx-auto">

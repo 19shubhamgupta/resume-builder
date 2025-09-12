@@ -10,7 +10,7 @@ export const useStoreAuth = create((set, get) => ({
   isSigningup: false,
   isLoggingIn: false,
   isCheckingAuth: false,
-  showNavBar : false,
+  showNavBar : true,
   
   toggleNav: (val)=>{
      set({showNavBar : val});
@@ -30,7 +30,6 @@ export const useStoreAuth = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });
-      toast.success("Authentication successful!");
     } catch (err) {
       set({ authUser: null });
       if (err.response) {
