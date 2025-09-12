@@ -75,7 +75,6 @@ export default function PredefinedInterview() {
       }
     };
 
-    fetchQuestions();
   }, [interview]);
 
   // Speak a question using Web Speech API

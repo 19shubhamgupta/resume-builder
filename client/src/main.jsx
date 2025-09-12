@@ -17,7 +17,11 @@ import CoursePage from "./Pages/CoursePage.jsx";
 
 // 👉 Import our new pages
 import InterviewHomePage from "./Pages/InterviewHomePage.jsx";
-import PredefinedInterview from "./Pages/PredefinedInterview.jsx";
+import BackendRoadmapGraph from "./Pages/BackendRoadmapPage.jsx";
+import FrontendRoadmapGraph from "./Pages/FrontendRoadmapPage.jsx";
+import InterviewDetailsPage from "./Pages/InterviewDetailsPage.jsx";
+import InterviewRoom from "./Pages/InterviewRoom.jsx";
+import ReportPage from "./Pages/ReportPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -39,7 +43,12 @@ const router = createBrowserRouter([
 
       // 👉 New Interview Routes
       { path: "/interview", element: <InterviewHomePage /> },
-      { path: "/interview/predefined/:title", element: <PredefinedInterview /> },
+      { path: "/interview/:id", element: <InterviewDetailsPage /> },
+      { path: "/room", element: <InterviewRoom  /> },
+      { path: "/report", element: <ReportPage  /> },
+
+      { path: "/roadmap/Frontend", element: <FrontendRoadmapGraph /> },
+      { path: "/roadmap/Backend", element: <BackendRoadmapGraph /> },
     ],
   },
 ]);
