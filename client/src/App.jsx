@@ -54,7 +54,7 @@ function App() {
       navigate("/login", { replace: true });
     }
   }, [location, navigate]);
-  
+
   if (isCheckingAuth && !authUser)
     return (
       <div className="flex items-center justify-center h-screen">

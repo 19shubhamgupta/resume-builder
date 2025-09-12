@@ -7,7 +7,6 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const roadmapRouter = require("./routes/roadmapRouter");
 const resumeRouter = require("./routes/resumeRouter");
-const predefinedInterviewRouter = require("./routes/predefinedInterviewRouter");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -27,9 +26,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
-app.use("/api/roadmap" , roadmapRouter)
+app.use("/api/roadmap", roadmapRouter);
 app.use("/api/resume", resumeRouter);
-app.use("/api/interview", predefinedInterviewRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));

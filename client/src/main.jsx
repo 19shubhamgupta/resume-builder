@@ -15,9 +15,7 @@ import TailoringResumePage from "./Pages/TailoringResumePage.jsx";
 import MyResumesPage from "./Pages/MyResumesPage.jsx";
 import CoursePage from "./Pages/CoursePage.jsx";
 
-// 👉 Import our new pages
-import InterviewHomePage from "./Pages/InterviewHomePage.jsx";
-import PredefinedInterview from "./Pages/PredefinedInterview.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -36,10 +34,6 @@ const router = createBrowserRouter([
       { path: "/my-resumes", element: <MyResumesPage /> },
       { path: "/tailorinput", element: <TailorInput /> },
       { path: "/tailoring-resume", element: <TailoringResumePage /> },
-
-      // 👉 New Interview Routes
-      { path: "/interview", element: <InterviewHomePage /> },
-      { path: "/interview/predefined/:title", element: <PredefinedInterview /> },
     ],
   },
 ]);

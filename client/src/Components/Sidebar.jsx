@@ -68,6 +68,11 @@ const Sidebar = ({ open, setOpen }) => {
       icon: FaRobot,
     },
     {
+      name: "Mock Interviews",
+      link: "/interview",
+      icon: MdMenuBook,
+    },
+    {
       name: "Logout",
       icon: RiLogoutBoxLine,
       action: "logout", // Special action instead of link
