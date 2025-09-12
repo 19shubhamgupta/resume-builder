@@ -37,6 +37,8 @@ const InterviewRoom = () => {
     setHasHeard(true);
   };
 
+  console.log("Questions:", questions);
+
   useEffect(() => {
     if (!questions) {
       navigate("/");
@@ -77,20 +79,15 @@ const InterviewRoom = () => {
 
   const handleSubmitInterview = async () => {
     try {
-      // Extract just the answers
-      const answerList = answers.map((a) => a.answer);
-
-      // Extract just the questions
-      const questionList = questions.map((q) => q.question);
-
+      
       const res = await axiosInstance.post("/interview/submit", {
         title: interviewDetails?.title || "Untitled Interview",
         role: interviewDetails?.role || "Not specified",
         experience: interviewDetails?.experience || "Not specified",
         skills: interviewDetails?.skills || [],
         difficulty: interviewDetails?.difficulty || "medium",
-        questions: questionList, // 👈 only questions
-        answers: answerList, // 👈 only answers
+        questions, // 👈 only questions
+        answers, // 👈 only answers
       });
 
       toast.success("Interview submitted successfully!");

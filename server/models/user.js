@@ -36,7 +36,13 @@ const userSchemsa = new mongoose.Schema(
     bookmarks:{
       type: [String],
       dafault: [],
-    }
+    },
+    reportSchemas: [
+      { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Report" 
+      }
+    ],
   },
   {
     timestamps: true,

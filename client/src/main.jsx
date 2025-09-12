@@ -45,7 +45,7 @@ const router = createBrowserRouter([
       { path: "/interview", element: <InterviewHomePage /> },
       { path: "/interview/:id", element: <InterviewDetailsPage /> },
       { path: "/room", element: <InterviewRoom  /> },
-      { path: "/report", element: <ReportPage  /> },
+      { path: "/report/:reportId", element: <ReportPage  /> },
 
       { path: "/roadmap/Frontend", element: <FrontendRoadmapGraph /> },
       { path: "/roadmap/Backend", element: <BackendRoadmapGraph /> },

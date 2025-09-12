@@ -14,6 +14,6 @@ interviewRouter.use(checkUser);
 interviewRouter.post("/start", startInterview);
 
 // Submit interview answers
-interviewRouter.post("/session/:sessionId/submit", submitInterview);
+interviewRouter.post("/submit", submitInterview);
 
 module.exports = interviewRouter;

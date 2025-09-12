@@ -7,7 +7,6 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const roadmapRouter = require("./routes/roadmapRouter");
 const resumeRouter = require("./routes/resumeRouter");
-const predefinedInterviewRouter = require("./routes/predefinedInterviewRouter");
 const interviewRouter = require("./routes/interviewRouter");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });

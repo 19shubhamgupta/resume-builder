@@ -54,7 +54,7 @@ Return ONLY JSON array.
       const jsonMatch = responseText.match(/\[[\s\S]*\]/);
       questions = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
     }
-
+    
     return res.status(200).json({
       message: "Questions generated successfully",
       questions,
@@ -81,13 +81,13 @@ exports.submitInterview = async (req, res) => {
       });
     }
 
-    // If frontend only sends answers, we need to handle that gracefully
+    // Build QA pairs
     const qaPairs = questions
       ? questions.map((q, i) => ({
           question: q.question,
           type: q.type,
           category: q.category,
-          answer: answers[i]?.answer || answers[i]?.transcript || "No answer provided",
+          answer: answers[i] || "No answer provided",
         }))
       : answers.map((a, i) => ({
           question: a.question || `Q${i + 1}`,
@@ -96,6 +96,7 @@ exports.submitInterview = async (req, res) => {
           answer: a.answer || "No answer provided",
         }));
 
+    // Prompt for Gemini
     const prompt = `
 You are an expert interview evaluator. Analyze the following interview performance.
 
@@ -108,55 +109,82 @@ Details:
 
 Questions and Answers:
 ${qaPairs.map(
-  (qa, i) => `
-Q${i + 1} (${qa.type} - ${qa.category}):
+  (qa, i) => `Q${i + 1} (${qa.type} - ${qa.category}):
 ${qa.question}
 
 Answer:
-${qa.answer}
-`
+${qa.answer}`
 )}
 
-Now evaluate and return JSON in this format:
+Now evaluate and return JSON in this format and ensure it's valid JSON:
 {
   "qaAnalysis": [
     ["question1", "transcript1", "suggestedAnswer1"],
     ["question2", "transcript2", "suggestedAnswer2"]
   ],
   "successPercentage": 76,
-  "suggestedImprovements": [
-    "Practice system design questions",
-    "Improve SQL optimization"
-  ],
+  "suggestedImprovements": ["Practice system design questions", "Improve SQL optimization"],
   "strengths": ["Good fundamentals"],
   "weaknesses": ["Weak in TypeScript"],
-  "skillAssessment": {
-    "JavaScript": 80,
-    "React": 85,
-    "System Design": 60
-  },
+  "skillAssessment": {"JavaScript": 80, "React": 85, "System Design": 60},
   "summary": "Overall good performance but needs improvement."
 }
 
 Return ONLY JSON object.
 `;
 
+    // Call Gemini
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
     const responseText = await result.response.text();
 
-    let report;
+    // Parse response safely
+    let reportData = {};
     try {
-      report = JSON.parse(responseText);
+      reportData = JSON.parse(responseText);
     } catch (err) {
-      console.warn("JSON.parse failed for report, extracting object...");
+      console.warn("JSON.parse failed, extracting object...", err);
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      report = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+      if (jsonMatch) {
+        try {
+          reportData = JSON.parse(jsonMatch[0]);
+        } catch (err2) {
+          console.warn("Failed to parse extracted JSON, using fallback", err2);
+          reportData = {};
+        }
+      }
     }
 
+    // Save report to database
+    const report = new Report({
+      title,
+      role,
+      experience,
+      difficulty,
+      skills,
+      qaAnalysis: reportData.qaAnalysis?.map(([q, t, s]) => ({
+        question: q,
+        transcript: t,
+        suggestedAnswer: s,
+      })) || [],
+      successPercentage: reportData.successPercentage || 0,
+      suggestedImprovements: reportData.suggestedImprovements || [],
+      strengths: reportData.strengths || [],
+      weaknesses: reportData.weaknesses || [],
+      skillAssessment: reportData.skillAssessment
+        ? Object.entries(reportData.skillAssessment).map(([skill, score]) => ({ skill, score }))
+        : [],
+      summary: reportData.summary || "",
+    });
+
+    await report.save();
+
+    console.log("Generated Report saved:", report);
+
+    // Return reportId to frontend
     return res.status(200).json({
-      message: "Interview report generated",
-      report,
+      message: "Interview report generated and saved",
+      reportId: report._id,
     });
   } catch (error) {
     console.error("Error generating report:", error);

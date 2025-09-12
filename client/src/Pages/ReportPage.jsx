@@ -1,64 +1,115 @@
-import React from "react";
-import { useLocation, Link } from "react-router-dom";
+// ReportPage.jsx
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { axiosInstance } from "../lib/axios";
 
 export default function ReportPage() {
-  const location = useLocation();
-  const report = location.state;
+  const { reportId } = useParams();
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!report) {
-    return <div className="p-6">No report data found.</div>;
-  }
+  useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        setLoading(true);
+        const res = await axiosInstance.get(`/reports/${reportId}`);
+        setReport(res.data.report);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load report.");
+        setLoading(false);
+      }
+    };
+
+    fetchReport();
+  }, [reportId]);
+
+  if (loading) return <div>Loading report...</div>;
+  if (error) return <div>{error}</div>;
+  if (!report) return <div>No report found.</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Interview Report</h1>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">{report.title}</h1>
+      <p>
+        <strong>Role:</strong> {report.role} | <strong>Experience:</strong>{" "}
+        {report.experience} | <strong>Difficulty:</strong> {report.difficulty}
+      </p>
+      <p>
+        <strong>Skills:</strong> {report.skills.join(", ")}
+      </p>
+      <p>
+        <strong>Success Percentage:</strong> {report.successPercentage}%
+      </p>
 
-      {/* Detailed results */}
-      {report.results?.map((item, idx) => (
-        <div key={idx} className="mb-4 border p-4 rounded shadow-sm">
-          <p>
-            <strong>Q:</strong> {item.question}
-          </p>
-          <p>
-            <strong>Your Answer:</strong> {item.userAnswer}
-          </p>
-          <p>
-            <strong>Correct Answer:</strong> {item.correctAnswer}
-          </p>
-          <p>
-            <strong>Score:</strong> {item.score}/10
-          </p>
-          <p>
-            <strong>Feedback:</strong> {item.feedback}
-          </p>
+      <hr className="my-4" />
+
+      <h2 className="text-2xl font-semibold mb-2">Q&A Analysis</h2>
+      {report.qaAnalysis.length === 0 ? (
+        <p>No Q&A available</p>
+      ) : (
+        <div className="space-y-4">
+          {report.qaAnalysis.map((qa, idx) => (
+            <div
+              key={idx}
+              className="border p-3 rounded shadow-sm bg-gray-50"
+            >
+              <p>
+                <strong>Q{idx + 1}:</strong> {qa.question}
+              </p>
+              <p>
+                <strong>Answer:</strong> {qa.transcript}
+              </p>
+              <p>
+                <strong>Suggested Answer:</strong> {qa.suggestedAnswer}
+              </p>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
 
-      {/* Summary */}
-      <div className="mt-8 p-6 border rounded bg-gray-100">
-        <h2 className="text-xl font-bold mb-2">Summary</h2>
-        <p>
-          <strong>Total Score:</strong> {report.summary?.totalScore}
-        </p>
-        <p>
-          <strong>Strengths:</strong> {report.summary?.strengths}
-        </p>
-        <p>
-          <strong>Weaknesses:</strong> {report.summary?.weaknesses}
-        </p>
-        <p>
-          <strong>Recommendation:</strong> {report.summary?.recommendation}
-        </p>
-      </div>
+      <hr className="my-4" />
 
-      <div className="mt-6">
-        <Link
-          to="/"
-          className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600"
-        >
-          Back to Home
-        </Link>
-      </div>
+      <h2 className="text-2xl font-semibold mb-2">Strengths & Weaknesses</h2>
+      <p>
+        <strong>Strengths:</strong>{" "}
+        {report.strengths.length > 0 ? report.strengths.join(", ") : "N/A"}
+      </p>
+      <p>
+        <strong>Weaknesses:</strong>{" "}
+        {report.weaknesses.length > 0 ? report.weaknesses.join(", ") : "N/A"}
+      </p>
+
+      <hr className="my-4" />
+
+      <h2 className="text-2xl font-semibold mb-2">Suggested Improvements</h2>
+      <ul className="list-disc list-inside">
+        {report.suggestedImprovements.length > 0
+          ? report.suggestedImprovements.map((imp, idx) => (
+              <li key={idx}>{imp}</li>
+            ))
+          : "N/A"}
+      </ul>
+
+      <hr className="my-4" />
+
+      <h2 className="text-2xl font-semibold mb-2">Skill Assessment</h2>
+      <ul className="list-disc list-inside">
+        {report.skillAssessment.length > 0
+          ? report.skillAssessment.map((skill, idx) => (
+              <li key={idx}>
+                {skill.skill}: {skill.score}%
+              </li>
+            ))
+          : "N/A"}
+      </ul>
+
+      <hr className="my-4" />
+
+      <h2 className="text-2xl font-semibold mb-2">Summary</h2>
+      <p>{report.summary || "N/A"}</p>
     </div>
   );
 }
