@@ -40,7 +40,8 @@ const RoadmapPage = () => {
     { id: 24, title: "Developer Relations", isNew: false },
     { id: 25, title: "BI Analyst", isNew: true },
   ];
-  // skill based roadmap
+
+  // Skill based roadmap
   const skillRoadmaps = [
     { id: 101, title: "HTML", isNew: false },
     { id: 102, title: "CSS", isNew: false },
@@ -64,17 +65,28 @@ const RoadmapPage = () => {
     { id: 120, title: "Go", isNew: true },
   ];
 
+  // Navigate to roadmap detail page
+  const handleRoadmapClick = (title) => {
+    // Encode URI to handle spaces & special characters
+    navigate(`/roadmap/${encodeURIComponent(title)}`);
+  };
+
   return (
     <div
       className="min-h-screen pt-20 pb-10 px-4"
       style={{ backgroundColor: "#E9F1FA" }}
     >
       <div className="container mx-auto">
-        <RoadMapCollection roadmaps={roadmaps} title="Role Based Roadmaps" />
+        <RoadMapCollection
+          roadmaps={roadmaps}
+          title="Role Based Roadmaps"
+          onRoadmapClick={handleRoadmapClick}
+        />
         <div className="mt-10"></div>
         <RoadMapCollection
           roadmaps={skillRoadmaps}
           title="Skill Based Roadmaps"
+          onRoadmapClick={handleRoadmapClick}
         />
       </div>
     </div>

@@ -1,13 +1,22 @@
 import React, { useState } from "react";
 import { Bookmark } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const RoadMapCollection = ({ roadmaps, title = "Role Based Roadmaps" }) => {
   const [bookmarked, setBookmarked] = useState({});
-  const handleBookmark = (role) => {
+  const navigate = useNavigate();
+
+  const handleBookmark = (event, id) => {
+    event.stopPropagation(); // Prevent card click from triggering navigation
     setBookmarked((prev) => ({
       ...prev,
-      [role]: !prev[role],
+      [id]: !prev[id],
     }));
+  };
+
+  const handleCardClick = (roadmapTitle) => {
+    // Navigate to roadmap detail page
+    navigate(`/roadmap/${encodeURIComponent(roadmapTitle)}`);
   };
 
   return (
@@ -28,18 +37,17 @@ const RoadMapCollection = ({ roadmaps, title = "Role Based Roadmaps" }) => {
             key={roadmap.id}
             className="relative border rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all bg-white"
             style={{ borderColor: "#CDDEEF" }}
+            onClick={() => handleCardClick(roadmap.title)}
           >
             <button
-              onClick={() => handleBookmark(roadmap.id)}
+              onClick={(e) => handleBookmark(e, roadmap.id)}
               className="absolute top-4 right-4"
               style={{
                 color: bookmarked[roadmap.id] ? "#00ABE4" : "#CDDEEF",
               }}
             >
               <Bookmark
-                className={`w-5 h-5 ${
-                  bookmarked[roadmap.id] ? "fill-current" : ""
-                }`}
+                className={`w-5 h-5 ${bookmarked[roadmap.id] ? "fill-current" : ""}`}
               />
             </button>
 
