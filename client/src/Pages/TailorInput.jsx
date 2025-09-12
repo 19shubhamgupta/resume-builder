@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import GeneratingLoader from "../Components/GeneratingLoader";
 import { useStoreAuth } from "../store/useResumeStore";
 import { ArrowRight, ArrowLeft, Upload, FileText } from "lucide-react";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const TailorInput = () => {
   const [step, setStep] = useState(1);
@@ -16,12 +16,11 @@ const TailorInput = () => {
   const [useManual, setUseManual] = useState(false);
   const navigate = useNavigate();
 
-
   // Zustand store
   const { isTailoring, getTailorData } = useStoreAuth();
 
   // Handle submit
-  const handleSubmit = async()=>{
+  const handleSubmit = async () => {
     const formData = new FormData();
     if (resumeFile) {
       formData.append("resume", resumeFile);
@@ -35,11 +34,10 @@ const TailorInput = () => {
       formData.append("job", jobFile);
     }
 
-    
     setStep(3); // Show loader step
     const res = await getTailorData(formData);
-    if(!isTailoring && res){
-      navigate('/tailoring-resume')
+    if (!isTailoring && res) {
+      navigate("/tailoring-resume");
     }
   };
 
@@ -157,20 +155,14 @@ const TailorInput = () => {
 
   if (step === 3) {
     return (
-      <div className="w-full flex items-center justify-center min-h-[60vh]">
-        <div className="max-w-200 border-4 border-blue-950 rounded-lg p-8 bg-white shadow-lg">
-          {isTailoring ? (
-            <>
-              <GeneratingLoader />
-              <div className="text-center text-blue-950 font-bold mt-4">
-                Tailoring your resume...
-              </div>
-            </>
-          ) : (
-            <div className="text-center text-green-600 font-bold mt-4">
-              ✅ Done!
-            </div>
-          )}
+      <div className="w-full flex items-center justify-center mt-10 md:mt-100">
+        <div className="max-w-200 md:-mt-60   ">
+          {/* Custom Generating Loader */}
+          <GeneratingLoader />
+
+          <div className="text-center text-blue-950 font-bold mt-4">
+            Your custom course will be ready soon
+          </div>
         </div>
       </div>
     );

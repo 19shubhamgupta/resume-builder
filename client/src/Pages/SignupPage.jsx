@@ -10,6 +10,11 @@ function SignupPage() {
 
   useEffect(() => {
     toggleNav(false);
+
+    // Cleanup function to show navbar when leaving the page
+    return () => {
+      toggleNav(true);
+    };
   }, [toggleNav]);
 
   const signupForm = (data) => {
