@@ -150,9 +150,9 @@ function LoginPage() {
         style={{ backgroundColor: "#00ABE4", borderColor: "#0089B6" }}
       >
         <img
-          src="/logo.png"
+          src="/hirely.png"
           alt="resume-builder-logo"
-          className="h-30 w-55 mb-4 "
+          className="size-40"
         />
         <div className="space-y-4 text-center px-8">
           <h1 className="text-5xl font-extrabold text-white">

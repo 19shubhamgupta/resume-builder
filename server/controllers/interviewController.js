@@ -1,11 +1,46 @@
 // interviewController.js
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-
+const Report = require("../models/Report");
+const fs = require("fs");
+const pdfParse = require("pdf-parse");
 // Initialize Google Generative AI
 if (!process.env.GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is missing in environment variables");
 }
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+/**
+ * Utility: Clean Gemini response and safely parse JSON
+ */
+function safeJSONParse(responseText, fallbackType = "array") {
+  try {
+    // Remove code fences like ```json ... ```
+    let cleaned = responseText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.warn("Direct JSON.parse failed, attempting regex extraction...");
+
+    // Try array match first
+    if (fallbackType === "array") {
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+    }
+
+    // Try object match
+    const objMatch = responseText.match(/\{[\s\S]*\}/);
+    if (objMatch) {
+      return JSON.parse(objMatch[0]);
+    }
+
+    return fallbackType === "array" ? [] : {};
+  }
+}
 
 /**
  * Start interview → generate questions on the fly
@@ -26,8 +61,8 @@ Interview Details:
 - Difficulty: ${difficulty || "medium"}
 
 Generate:
-1. 5-7 introduction/background questions
-2. 10-13 technical/deep-dive questions
+1. 2 introduction/background questions
+2. 3 technical/deep-dive questions
 
 Format the response as a JSON array:
 [
@@ -39,7 +74,7 @@ Format the response as a JSON array:
   }
 ]
 
-Return ONLY JSON array.
+Return ONLY JSON array. No extra text, no markdown.
 `;
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -130,7 +165,7 @@ Now evaluate and return JSON in this format and ensure it's valid JSON:
   "summary": "Overall good performance but needs improvement."
 }
 
-Return ONLY JSON object.
+Return ONLY JSON object. No extra text, no markdown.
 `;
 
     // Call Gemini
@@ -190,6 +225,92 @@ Return ONLY JSON object.
     console.error("Error generating report:", error);
     return res.status(500).json({
       message: "Failed to generate interview report",
+      error: error.message,
+    });
+  }
+};
+
+// ===============================
+// Start Custom Interview
+// ===============================
+exports.startCustomInterview = async (req, res) => {
+  try {
+    const { role, title, company, description } = req.body;
+
+    // --- Step 1: Extract resume text ---
+    let resumeText = "";
+    if (req.files?.resume) {
+      const resumeBuffer = fs.readFileSync(req.files.resume[0].path);
+      const resumeData = await pdfParse(resumeBuffer);
+      resumeText = resumeData.text;
+    }
+
+    // --- Step 2: Extract job description text ---
+    let jobText = "";
+    if (req.files?.jobPdf) {
+      const jobBuffer = fs.readFileSync(req.files.jobPdf[0].path);
+      const jobData = await pdfParse(jobBuffer);
+      jobText = jobData.text;
+    } else if (description) {
+      jobText = `
+      Job Role: ${role || "Not specified"}
+      Job Title: ${title || "Not specified"}
+      Company: ${company || "Not specified"}
+      Description: ${description}
+      `;
+    }
+
+    // --- Step 3: AI Prompt ---
+    const prompt = `
+You are an expert interview question generator. 
+Analyze the candidate's resume and the job description to generate 15–20 tailored interview questions.
+
+Candidate Resume:
+${resumeText || "Not provided"}
+
+Job Description:
+${jobText || "Not provided"}
+
+Generate:
+1. 2 introduction/background questions (based on resume, past work, achievements).
+2. 4 technical/deep-dive questions (based on resume skills + job requirements).
+
+Format the response as a JSON array:
+[
+  {
+    "question": "Question text",
+    "type": "introduction" | "technical",
+    "timeLimit": 120,
+    "category": "JavaScript | React | System Design | etc."
+  }
+]
+
+Return ONLY JSON array. No extra text, no markdown.
+`;
+
+    // --- Step 4: Generate with Gemini ---
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const responseText = await result.response.text();
+
+    // --- Step 5: Parse JSON safely ---
+    let questions;
+    try {
+      questions = JSON.parse(responseText);
+    } catch (err) {
+      console.warn("JSON.parse failed for custom interview, extracting array...");
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      questions = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+    }
+
+    return res.status(200).json({
+      message: "Custom interview generated successfully",
+      questions,
+    });
+  } catch (error) {
+    console.error("Error generating custom interview:", error);
+    return res.status(500).json({
+      message: "Failed to generate custom interview questions",
       error: error.message,
     });
   }

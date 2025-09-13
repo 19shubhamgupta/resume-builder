@@ -64,6 +64,7 @@ const InterviewHomePage = () => {
 
   const handleGenerateCustomInterview = () => {
     // Placeholder for custom interview generation
+    navigate("/interview/custom");
     console.log("Generate custom interview clicked");
     // You can implement this functionality later
   };

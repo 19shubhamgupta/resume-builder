@@ -34,7 +34,7 @@ function SignupPage() {
         className="hidden md:flex md:w-[45%] items-center justify-center rounded-r-[3rem] border h-screen flex-col shadow-2xl"
         style={{ backgroundColor: "#00ABE4", borderColor: "#0089B6" }}
       >
-        <img src="/logo.png" alt="chit-chat-logo" className="h-30 w-55 mb-4" />
+        <img src="/hirely.png" alt="chit-chat-logo" className="size-40" />
         <div className="space-y-4 text-center px-8">
           <h1 className="text-5xl font-extrabold text-white">
             Your Career

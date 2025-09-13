@@ -3,6 +3,7 @@ const { checkUser } = require("../middlewares/checkUser");
 const {
   startInterview,
   submitInterview,
+  startCustomInterview
 } = require("../controllers/interviewController");
 
 const interviewRouter = express.Router();
@@ -15,5 +16,8 @@ interviewRouter.post("/start", startInterview);
 
 // Submit interview answers
 interviewRouter.post("/submit", submitInterview);
+
+// Submit interview answers
+interviewRouter.post("/custom", startCustomInterview);
 
 module.exports = interviewRouter;

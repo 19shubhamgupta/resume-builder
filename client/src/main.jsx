@@ -15,6 +15,7 @@ import TailoringResumePage from "./Pages/TailoringResumePage.jsx";
 import MyResumesPage from "./Pages/MyResumesPage.jsx";
 import CoursePage from "./Pages/CoursePage.jsx";
 
+
 // 👉 Import our new pages
 import InterviewHomePage from "./Pages/InterviewHomePage.jsx";
 import BackendRoadmapGraph from "./Pages/BackendRoadmapPage.jsx";
@@ -22,6 +23,7 @@ import FrontendRoadmapGraph from "./Pages/FrontendRoadmapPage.jsx";
 import InterviewDetailsPage from "./Pages/InterviewDetailsPage.jsx";
 import InterviewRoom from "./Pages/InterviewRoom.jsx";
 import ReportPage from "./Pages/ReportPage.jsx";
+import CustomInterview from "./Pages/CustomInterview.jsx";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +45,7 @@ const router = createBrowserRouter([
 
       // 👉 New Interview Routes
       { path: "/interview", element: <InterviewHomePage /> },
+      { path: "/interview/custom", element: <CustomInterview /> },
       { path: "/interview/:id", element: <InterviewDetailsPage /> },
       { path: "/room", element: <InterviewRoom  /> },
       { path: "/report/:reportId", element: <ReportPage  /> },

@@ -15,6 +15,7 @@ export default function ReportPage() {
         setLoading(true);
         const res = await axiosInstance.get(`/reports/${reportId}`);
         setReport(res.data.report);
+        console.log("Fetched Report:", res.data.report);
         setLoading(false);
       } catch (err) {
         console.error(err);
